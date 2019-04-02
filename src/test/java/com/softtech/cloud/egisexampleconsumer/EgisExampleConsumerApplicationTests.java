@@ -1,50 +1,41 @@
 package com.softtech.cloud.egisexampleconsumer;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.Assert.assertNotNull;
 
-import org.junit.Rule;
+import java.util.Map;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.cloud.contract.stubrunner.junit.StubRunnerRule;
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
-import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties;
-import org.springframework.http.MediaType;
+import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties.StubsMode;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.ResultActions.*;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.client.RestOperations;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
-@AutoConfigureMockMvc
-@AutoConfigureJsonTesters
+@AutoConfigureStubRunner(repositoryRoot = "C:\\Users\\david\\.m2\\repository", classifier = "", stubsMode = StubsMode.LOCAL, ids = "com.softtech:egis-visa-applicant-stubs:0.0.1-BUILD-SNAPSHOT", minPort = 12000, maxPort = 12000)
 public class EgisExampleConsumerApplicationTests {
-	
+
 	@Autowired
-	MockMvc mockMvc;
-	
-	@Rule
-	public StubRunnerRule rule = new StubRunnerRule()
-			.downloadStub("com.softtech","egis-visa-applicant-stubs", "0.0.1-BUILD-SNAPSHOT", "")
-			.repoRoot("C:\\Users\\david\\.m2\\repository")
-			.stubsMode(StubRunnerProperties.StubsMode.LOCAL)
-			.maxPort(8083)
-			.minPort(8083);
-	
+	private RestOperations restOperations;
+
 	@Test
-	public void testingVisaSummary() throws Exception {
-		mockMvc.perform(MockMvcRequestBuilders.get("http://localhost:8083/visa/anumber?alienNumber=A123456789")
-				.accept(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk())
-				.andExpect(content().string("THERE YOU GO"));
+	public void testingVisaSummaryGetByAlienNumber() throws Exception {
+		assertNotNull(restOperations);
+		final String uriString = UriComponentsBuilder.fromUriString("http://localhost:12000/visa/v1/anumber")
+				.queryParam("alienNumber", "A123456789").build().toUriString();
+
+		@SuppressWarnings("unchecked")
+		Map<String, Object> returnedVal = restOperations.getForEntity(uriString, Map.class).getBody();
+		assertNotNull(returnedVal);
+		final String jsonForm = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(returnedVal);
+		System.out.println(jsonForm);
 	}
 
 }
