@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
-@AutoConfigureStubRunner(repositoryRoot = "C:\\Users\\david\\.m2\\repository", classifier = "", stubsMode = StubsMode.LOCAL, ids = "com.softtech:egis-visa-applicant-stubs:0.0.1-BUILD-SNAPSHOT", minPort = 12000, maxPort = 12000)
+@AutoConfigureStubRunner(repositoryRoot = "http://nexus-ci.apps.softtechdemos.com/repository/maven-releases", classifier = "stubs", stubsMode = StubsMode.REMOTE, ids = "com.softtech:egis-visa-applicant-stubs:test-upload-rel-1", minPort = 12000, maxPort = 12000)
 public class EgisExampleConsumerApplicationTests {
 
 	@Autowired
@@ -37,5 +37,4 @@ public class EgisExampleConsumerApplicationTests {
 		final String jsonForm = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(returnedVal);
 		System.out.println(jsonForm);
 	}
-
 }
