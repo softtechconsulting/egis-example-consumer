@@ -12,8 +12,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
 import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties.StubsMode;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
@@ -23,7 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
-@AutoConfigureStubRunner(repositoryRoot = "http://nexus-ci.apps.softtechdemos.com/repository/maven-releases", classifier = "stubs", stubsMode = StubsMode.REMOTE, ids = "com.softtech:egis-visa-applicant-stubs:test-upload-rel-6", minPort = 12000, maxPort = 12000)
+@AutoConfigureStubRunner(repositoryRoot = "C:\\Users\\david\\.m2\\repository", classifier = "", stubsMode = StubsMode.LOCAL, ids = "com.softtech:egis-visa-applicant-stubs:0.0.1-BUILD-SNAPSHOT", minPort = 12000, maxPort = 12000)
 public class EgisExampleConsumerApplicationTests {
 
 	@Autowired
@@ -81,4 +85,40 @@ public class EgisExampleConsumerApplicationTests {
 		@SuppressWarnings("unchecked")
 		ResponseEntity<Map> response = restOperations.getForEntity(uriString, Map.class);
 	}
+	
+	@Test(expected = HttpClientErrorException.class)
+	public void testingCreateCaseGetByBirthdateAndNameBioData_noneFound() throws Exception {
+		assertNotNull(restOperations);
+		
+		// create request body
+		String input = "{\"applicantId\":48382}";
+		// set headers
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+	    HttpEntity<String> entity = new HttpEntity<String>(input, headers);
+
+		@SuppressWarnings("unchecked")
+		ResponseEntity<Map> response = restOperations.postForEntity("http://localhost:12000/case/v1", entity, Map.class);
+	}	
+	
+	@Test
+	public void testingCreateCaseGetByBirthdateAndNameBioData() throws Exception {
+		assertNotNull(restOperations);
+		
+		// create request body
+		String input = "{\"caseStatus\":\"Open\",\"provisional\":false,\"derogatory\":false,\"fingerprints\":null,\"postClearance\":\"Not submitted\","
+				+ "\"fbiClearance\":\"Not submitted\",\"interviewStatus\":\"Not eligible\",\"appointmentId\":\"1234123\","
+				+ "\"caseId\":null,\"applicantId\":48382}";
+		// set headers
+		HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+	    HttpEntity<String> entity = new HttpEntity<String>(input, headers);
+
+		@SuppressWarnings("unchecked")
+		ResponseEntity<Map> response = restOperations.postForEntity("http://localhost:12000/case/v1", entity, Map.class);
+		assertNotNull(response);
+		assertEquals(HttpStatus.CREATED.value(), response.getStatusCodeValue());
+		final String jsonForm = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response.getBody());
+		System.out.println(jsonForm);
+	}	
 }
