@@ -87,7 +87,7 @@ public class EgisExampleConsumerApplicationTests {
 	}
 	
 	@Test(expected = HttpClientErrorException.class)
-	public void testingCreateCaseGetByBirthdateAndNameBioData_noneFound() throws Exception {
+	public void testingCreateCase_mismatchedParams() throws Exception {
 		assertNotNull(restOperations);
 		
 		// create request body
@@ -102,7 +102,7 @@ public class EgisExampleConsumerApplicationTests {
 	}	
 	
 	@Test
-	public void testingCreateCaseGetByBirthdateAndNameBioData() throws Exception {
+	public void testingCreateCase() throws Exception {
 		assertNotNull(restOperations);
 		
 		// create request body
@@ -116,6 +116,25 @@ public class EgisExampleConsumerApplicationTests {
 
 		@SuppressWarnings("unchecked")
 		ResponseEntity<Map> response = restOperations.postForEntity("http://localhost:12000/case/v1", entity, Map.class);
+		assertNotNull(response);
+		assertEquals(HttpStatus.CREATED.value(), response.getStatusCodeValue());
+		final String jsonForm = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response.getBody());
+		System.out.println(jsonForm);
+	}	
+	
+	@Test
+	public void testingCreateApplicant() throws Exception {
+		assertNotNull(restOperations);
+		
+		// create request body
+		String input = "{\"firstname\":\"Tim\",\"middlename\":\"T\",\"lastname\":\"Tracer\"}";
+		// set headers
+		HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+	    HttpEntity<String> entity = new HttpEntity<String>(input, headers);
+
+		@SuppressWarnings("unchecked")
+		ResponseEntity<Map> response = restOperations.postForEntity("http://localhost:12000/visa/v1", entity, Map.class);
 		assertNotNull(response);
 		assertEquals(HttpStatus.CREATED.value(), response.getStatusCodeValue());
 		final String jsonForm = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response.getBody());
